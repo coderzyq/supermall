@@ -1,5 +1,5 @@
 import {POP, NEW, SELL} from "./const";
-
+import {debounce} from "@/common/util";
 export const backTopMixin = {
   data: function () {
     return {
@@ -35,4 +35,20 @@ export const tabControlMixin = {
       console.log(this.currentType);
     }
   }
+}
+
+export const itemListenerMixin = {
+    data() {
+      return {
+          itemImageListener: null
+      }
+    },
+    mounted() {
+        let newRefresh = debounce(this.$refs.scroll.refresh, 100)
+
+        this.itemImageListener = () => {
+            newRefresh()
+        }
+        this.$bus.$on('itemImageLoad', this.itemImageListener)
+    }
 }

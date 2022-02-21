@@ -19,7 +19,10 @@
                 <span>{{commentInfo.style}}</span>
             </div>
             <div class="info-imgs">
-                <img :src="item" v-for="(item, index) in commentInfo.images">
+                <img :src="item"
+                     v-for="(item, index) in commentInfo.images"
+                     :key="index"
+                     @load="imageLoad">
             </div>
         </div>
     </div>
@@ -45,6 +48,11 @@ export default {
             const date = new Date(value * 1000)
             //2.将date进行格式化
             return formatDate(date, 'yyyy-hh-dd')
+        }
+    },
+    methods: {
+        imageLoad() {
+            this.$emit('detailImageLoad')
         }
     }
 }

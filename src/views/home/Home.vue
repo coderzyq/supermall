@@ -38,6 +38,7 @@ import BackTop from "components/content/backTop/BackTop";
 
 import {getHomeMultidata, getHomeGoods} from "network/home";
 import {debounce} from "@/common/util";
+import {itemListenerMixin} from "@/common/mixin";
 
 
 export default {
@@ -52,6 +53,7 @@ export default {
         Scroll,
         BackTop
     },
+    mixins: [itemListenerMixin],
     data() {
         return {
             banners: [],
@@ -66,7 +68,6 @@ export default {
             tabOffsetTop: 0,
             isTabFixed: false,
             saveY: 0,
-            itemImageListener: null
         }
     },
     computed: {
@@ -100,19 +101,6 @@ export default {
 
     },
     mounted() {
-        //1.图片加载完成的事件监听
-
-        //this.$refs.scroll.refresh对这个函数进行防抖操作
-        let newRefresh = debounce(this.$refs.scroll.refresh, 100)
-
-        //3.监听item中图片加载完成, 对监听的事件进行保存
-        this.itemImageListener = () => {
-            newRefresh()
-        }
-        this.$bus.$on('itemImageLoad', this.itemImageListener)
-
-
-
     },
     methods: {
         /**

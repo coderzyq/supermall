@@ -1,14 +1,20 @@
 <template>
 <div id="detail">
-    <detail-nav-bar class="detail-nav"></detail-nav-bar>
-    <scroll class="content" ref="scroll">
+    <detail-nav-bar
+        class="detail-nav"
+        @titleClick="titleClick"
+        ref="nav"></detail-nav-bar>
+    <scroll class="content"
+            ref="scroll"
+            :probe-type="3"
+            @scroll="contentScroll">
         <detail-swiper :top-images="topImages"></detail-swiper>
         <detail-base-info :goods="goods"></detail-base-info>
         <detail-shop-info :detail-info="shop"></detail-shop-info>
         <detail-goods-info :detail-info="detailInfo" @imageLoad="imageLoad"></detail-goods-info>
-        <detail-param-info :param-info="paramInfo"></detail-param-info>
-        <detail-comment-info :comment-info="commentInfo"></detail-comment-info>
-        <goods-list :goods="recommends"></goods-list>
+        <detail-param-info :param-info="paramInfo" ref="params"></detail-param-info>
+        <detail-comment-info :comment-info="commentInfo" ref="comment"></detail-comment-info>
+        <goods-list :goods="recommends" ref="recommend"></goods-list>
     </scroll>
 </div>
 </template>
@@ -28,6 +34,7 @@ import GoodsList from "components/content/goods/GoodsList";
 
 import {getDetail, getRecommend, Goods, Shop, GoodsParam} from "network/detail";
 import {debounce} from "common/util";
+import {itemListenerMixin} from 'common/mixin';
 
 export default {
     name: "Detail",
@@ -42,6 +49,7 @@ export default {
         DetailCommentInfo,
         GoodsList
     },
+    mixins: [itemListenerMixin],
     data() {
         return {
             iid: null,
@@ -52,7 +60,9 @@ export default {
             paramInfo: {},
             commentInfo: {},
             recommends: [],
-            itemImageListener: null
+            themeTopYs: [],
+            getThemeTopY: null,
+            currentIndex: 0
         }
     },
     created() {
@@ -81,19 +91,77 @@ export default {
             console.log(res);
             this.recommends = res.data.list
         })
+        //4.给getThemeTopY赋值
+        this.getThemeTopY = debounce(() => {
+            this.themeTopYs = []
+
+            this.themeTopYs.push(0)
+            this.themeTopYs.push(this.$refs.params.$el.offsetTop)
+            this.themeTopYs.push(this.$refs.comment.$el.offsetTop)
+            this.themeTopYs.push(this.$refs.recommend.$el.offsetTop)
+            this.themeTopYs.push(Number.MAX_VALUE)
+
+            console.log(this.themeTopYs);
+        }, 100)
+        /*this.$nextTick(() => {
+            //根据最新的数据，对应的DOM是已经被渲染出来
+            //但是图片依然没有加载完（目前获取到offsetTop不包含其中的图片）
+            //offsetTop值不对的时候,都是因为图片的问题
+            this.themeTopYs = []
+
+            this.themeTopYs.push(0)
+            this.themeTopYs.push(this.$refs.params.$el.offsetTop)
+            this.themeTopYs.push(this.$refs.comment.$el.offsetTop)
+            this.themeTopYs.push(this.$refs.recommend.$el.offsetTop)
+
+            console.log(this.themeTopYs);
+        })*/
     },
     methods: {
         imageLoad() {
             this.$refs.scroll.refresh()
+            console.log('---');
+            this.getThemeTopY()
+            //this.$nextTick(() => {
+                /*this.themeTopYs = []
+
+                this.themeTopYs.push(0)
+                this.themeTopYs.push(this.$refs.params.$el.offsetTop)
+                this.themeTopYs.push(this.$refs.comment.$el.offsetTop)
+                this.themeTopYs.push(this.$refs.recommend.$el.offsetTop)
+
+                console.log(this.themeTopYs);*/
+            //})
+        },
+        titleClick(index) {
+            console.log(index)
+            this.$refs.scroll.scrollTo(0, -this.themeTopYs[index], 200)
+        },
+        contentScroll(position) {
+            //console.log(position);
+            //1.获取y值
+            const positionY = -position.y
+            //2. positionY和主题中的值进行比较
+            //[0, 7938, 9120, 9452, Number.MAX_VALUE]
+            let length = this.themeTopYs.length - 1
+            for (let i in this.themeTopYs) {
+                let inti = parseInt(i) - 1 //此处的i为字符串,所以需要转换成整数型
+                if (this.currentIndex !== inti && (positionY > this.themeTopYs[inti] && positionY < this.themeTopYs[inti+1])) {
+                    this.currentIndex = inti
+                    console.log(this.currentIndex)
+                    this.$refs.nav.currentIndex = this.currentIndex
+                }
+                /*if (this.currentIndex !== inti && ((inti < length -1 && positionY >= this.themeTopYs[inti] && positionY <
+                    this.themeTopYs[inti + 1]) || (inti === length -1 && positionY >= this.themeTopYs[inti]))) {
+                    this.currentIndex = inti
+                    console.log(this.currentIndex)
+                    this.$refs.nav.currentIndex = this.currentIndex
+                }*/
+            }
         }
     },
     mounted() {
-        let newRefresh = debounce(this.$refs.scroll.refresh, 100)
 
-        this.itemImageListener = () => {
-            newRefresh()
-        }
-        this.$bus.$on('itemImageLoad', this.itemImageListener)
     },
     destroyed() {
         this.$bus.$off('itemImageLoad', this.itemImageListener)
