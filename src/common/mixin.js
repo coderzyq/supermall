@@ -1,6 +1,12 @@
 import {POP, NEW, SELL} from "./const";
 import {debounce} from "@/common/util";
+import BackTop from "components/content/backTop/BackTop";
+import {BACKTOP_DISTANCE} from "./const";
+
 export const backTopMixin = {
+  components: {
+    BackTop
+  },
   data: function () {
     return {
       showBackTop: false
@@ -9,7 +15,10 @@ export const backTopMixin = {
   methods: {
     backTop: function () {
       this.$refs.scroll.scrollTo(0, 0, 300);
-    }
+    },
+      listenerShowBack(position) {
+          this.showBackTop = -position.y > BACKTOP_DISTANCE
+      }
   }
 }
 

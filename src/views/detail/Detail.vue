@@ -16,6 +16,8 @@
         <detail-comment-info :comment-info="commentInfo" ref="comment"></detail-comment-info>
         <goods-list :goods="recommends" ref="recommend"></goods-list>
     </scroll>
+    <back-top @click.native="backTop" v-show="showBackTop"></back-top>
+    <detail-bottom-bar></detail-bottom-bar>
 </div>
 </template>
 
@@ -28,13 +30,15 @@ import DetailShopInfo from "./childComs/DetailShopInfo";
 import DetailGoodsInfo from "./childComs/DetailGoodsInfo";
 import DetailParamInfo from "./childComs/DetailParamInfo";
 import DetailCommentInfo from "./childComs/DetailCommentInfo";
+import DetailBottomBar from "./childComs/DetailBottomBar";
 
 import Scroll from "components/common/scroll/Scroll";
 import GoodsList from "components/content/goods/GoodsList";
 
 import {getDetail, getRecommend, Goods, Shop, GoodsParam} from "network/detail";
 import {debounce} from "common/util";
-import {itemListenerMixin} from 'common/mixin';
+import {itemListenerMixin, backTopMixin} from 'common/mixin';
+
 
 export default {
     name: "Detail",
@@ -47,9 +51,10 @@ export default {
         DetailGoodsInfo,
         DetailParamInfo,
         DetailCommentInfo,
-        GoodsList
+        GoodsList,
+        DetailBottomBar,
     },
-    mixins: [itemListenerMixin],
+    mixins: [itemListenerMixin, backTopMixin],
     data() {
         return {
             iid: null,
@@ -62,7 +67,7 @@ export default {
             recommends: [],
             themeTopYs: [],
             getThemeTopY: null,
-            currentIndex: 0
+            currentIndex: 0,
         }
     },
     created() {
@@ -120,7 +125,6 @@ export default {
     methods: {
         imageLoad() {
             this.$refs.scroll.refresh()
-            console.log('---');
             this.getThemeTopY()
             //this.$nextTick(() => {
                 /*this.themeTopYs = []
@@ -158,7 +162,11 @@ export default {
                     this.$refs.nav.currentIndex = this.currentIndex
                 }*/
             }
-        }
+
+            //3.是否显示回到顶部
+            this.listenerShowBack(position)
+        },
+
     },
     mounted() {
 
@@ -182,6 +190,6 @@ export default {
     background-color: #ffffff;
 }
 .content {
-    height: calc(100% - 44px);
+    height: calc(100% - 44px - 58px);
 }
 </style>
