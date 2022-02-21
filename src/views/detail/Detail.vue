@@ -7,6 +7,8 @@
         <detail-shop-info :detail-info="shop"></detail-shop-info>
         <detail-goods-info :detail-info="detailInfo" @imageLoad="imageLoad"></detail-goods-info>
         <detail-param-info :param-info="paramInfo"></detail-param-info>
+        <detail-comment-info :comment-info="commentInfo"></detail-comment-info>
+        <goods-list :goods="recommends"></goods-list>
     </scroll>
 </div>
 </template>
@@ -19,10 +21,13 @@ import DetailBaseInfo from "./childComs/DetailBaseInfo";
 import DetailShopInfo from "./childComs/DetailShopInfo";
 import DetailGoodsInfo from "./childComs/DetailGoodsInfo";
 import DetailParamInfo from "./childComs/DetailParamInfo";
+import DetailCommentInfo from "./childComs/DetailCommentInfo";
 
 import Scroll from "components/common/scroll/Scroll";
+import GoodsList from "components/content/goods/GoodsList";
 
-import {getDetail, Goods, Shop, GoodsParam} from "network/detail";
+import {getDetail, getRecommend, Goods, Shop, GoodsParam} from "network/detail";
+import {debounce} from "common/util";
 
 export default {
     name: "Detail",
@@ -33,7 +38,9 @@ export default {
         DetailShopInfo,
         Scroll,
         DetailGoodsInfo,
-        DetailParamInfo
+        DetailParamInfo,
+        DetailCommentInfo,
+        GoodsList
     },
     data() {
         return {
@@ -43,7 +50,9 @@ export default {
             shop: {},
             detailInfo: {},
             paramInfo: {},
-            commentInfo: {}
+            commentInfo: {},
+            recommends: [],
+            itemImageListener: null
         }
     },
     created() {
@@ -67,11 +76,27 @@ export default {
                 this.commentInfo = data.rate.list[0]
             }
         })
+        //3.请求详情数据
+        getRecommend().then(res => {
+            console.log(res);
+            this.recommends = res.data.list
+        })
     },
     methods: {
         imageLoad() {
             this.$refs.scroll.refresh()
         }
+    },
+    mounted() {
+        let newRefresh = debounce(this.$refs.scroll.refresh, 100)
+
+        this.itemImageListener = () => {
+            newRefresh()
+        }
+        this.$bus.$on('itemImageLoad', this.itemImageListener)
+    },
+    destroyed() {
+        this.$bus.$off('itemImageLoad', this.itemImageListener)
     }
 }
 </script>

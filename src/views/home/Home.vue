@@ -65,7 +65,8 @@ export default {
             isShowBackTop: false,
             tabOffsetTop: 0,
             isTabFixed: false,
-            saveY: 0
+            saveY: 0,
+            itemImageListener: null
         }
     },
     computed: {
@@ -81,7 +82,11 @@ export default {
         this.$refs.scroll.refresh()
     },
     deactivated() {
+        //1.保存Y值
         this.saveY = this.$refs.scroll.getScrollY()
+
+        //2.取消全局事件的监听
+        this.$bus.$off('itemImageLoad', this.itemImageListener)
     },
     created() {
         //1.请求多个数据
@@ -96,12 +101,15 @@ export default {
     },
     mounted() {
         //1.图片加载完成的事件监听
-        const refresh = debounce(this.$refs.scroll.refresh, 500)
-        //3.监听item中图片加载完成
-        this.$bus.$on('itemImageLoad', () => {
-            // console.log('----')
-            refresh()
-        })
+
+        //this.$refs.scroll.refresh对这个函数进行防抖操作
+        let newRefresh = debounce(this.$refs.scroll.refresh, 100)
+
+        //3.监听item中图片加载完成, 对监听的事件进行保存
+        this.itemImageListener = () => {
+            newRefresh()
+        }
+        this.$bus.$on('itemImageLoad', this.itemImageListener)
 
 
 
@@ -192,7 +200,7 @@ export default {
 
 .content {
     overflow: hidden;
-    
+
     position: absolute;
     top: 44px;
     bottom: 49px;
