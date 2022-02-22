@@ -16,8 +16,8 @@
         <detail-comment-info :comment-info="commentInfo" ref="comment"></detail-comment-info>
         <goods-list :goods="recommends" ref="recommend"></goods-list>
     </scroll>
+    <detail-bottom-bar @addCart="addToCart"></detail-bottom-bar>
     <back-top @click.native="backTop" v-show="showBackTop"></back-top>
-    <detail-bottom-bar></detail-bottom-bar>
 </div>
 </template>
 
@@ -68,6 +68,7 @@ export default {
             themeTopYs: [],
             getThemeTopY: null,
             currentIndex: 0,
+            count: 0
         }
     },
     created() {
@@ -166,7 +167,25 @@ export default {
             //3.是否显示回到顶部
             this.listenerShowBack(position)
         },
+        addToCart() {
+            console.log("123");
+            //1.获取购物车所需要的商品信息
+            const product = {}
+            product.image = this.topImages[0]
+            product.title = this.goods.title
+            product.desc = this.goods.desc
+            product.price = this.goods.realPrice
+            product.iid = this.iid
+            //product.count = this.count
 
+            //2.将商品添加到购物车
+            this.$store.state.cartList.push(product)
+            //这是mutation里边的方法
+            //this.$store.commit('addCart', product)
+            //这是action里边的方法
+            this.$store.dispatch('addCart', product)
+            console.log(this.$store.state.cartList);
+        }
     },
     mounted() {
 
