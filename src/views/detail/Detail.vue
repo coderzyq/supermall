@@ -68,7 +68,7 @@ export default {
             themeTopYs: [],
             getThemeTopY: null,
             currentIndex: 0,
-            count: 0
+
         }
     },
     created() {
@@ -176,10 +176,9 @@ export default {
             product.desc = this.goods.desc
             product.price = this.goods.realPrice
             product.iid = this.iid
-            //product.count = this.count
 
             //2.将商品添加到购物车
-            this.$store.state.cartList.push(product)
+            //this.$store.state.cartList.push(product)
             //这是mutation里边的方法
             //this.$store.commit('addCart', product)
             //这是action里边的方法

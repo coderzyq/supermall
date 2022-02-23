@@ -13,13 +13,14 @@ export default {
     }
 }*/
 export default {
-    addCounter(state, payload) {
+    [ADD_COUNTER](state, payload) {
+        //payload.count = 0
+        payload.count ++
         console.log(payload.count)
-        payload.count+= 1
-        console.log(payload.count);
     },
-    addToCart(state, payload) {
+    [ADD_TO_CART](state, payload) {
         console.log(payload)
+        payload.checked = true
         state.cartList.push(payload)
     }
 }

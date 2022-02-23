@@ -14,12 +14,12 @@ export default {
         if(oldProduct) {
             //oldProduct.count += 1
             //console.log(oldProduct.count)
-            context.commit("addCounter", oldProduct)
+            context.commit(ADD_COUNTER, oldProduct)
         } else {
             payload.count = 1
             console.log(payload)
             //context.state.cartList.push(payload)
-            context.commit('addToCart', payload)
+            context.commit(ADD_TO_CART, payload)
         }
     }
 }

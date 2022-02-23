@@ -2,9 +2,9 @@
 <div class="cart-list">
     <scroll class="content" ref="scroll">
         <cart-list-item
-            v-for="(item, index) in cartList"
+            v-for="item in cartList"
             :product="item"
-            :key="index"></cart-list-item>
+            :key="item.iid"></cart-list-item>
     </scroll>
 </div>
 </template>
@@ -32,7 +32,7 @@ export default {
 
 <style scoped>
 .cart-list {
-    height: calc(100% - 44px - 49px);
+    height: calc(100% - 44px - 49px - 40px);
 }
 .content {
     height: 100%;
