@@ -18,6 +18,7 @@
     </scroll>
     <detail-bottom-bar @addCart="addToCart"></detail-bottom-bar>
     <back-top @click.native="backTop" v-show="showBackTop"></back-top>
+<!--    <toast :message="message" :show="show"></toast>-->
 </div>
 </template>
 
@@ -38,8 +39,9 @@ import GoodsList from "components/content/goods/GoodsList";
 import {getDetail, getRecommend, Goods, Shop, GoodsParam} from "network/detail";
 import {debounce} from "common/util";
 import {itemListenerMixin, backTopMixin} from 'common/mixin';
+import {mapActions} from 'vuex'
 
-
+// import Toast from "components/common/toast/Toast";
 export default {
     name: "Detail",
     components: {
@@ -53,6 +55,7 @@ export default {
         DetailCommentInfo,
         GoodsList,
         DetailBottomBar,
+        // Toast
     },
     mixins: [itemListenerMixin, backTopMixin],
     data() {
@@ -68,7 +71,8 @@ export default {
             themeTopYs: [],
             getThemeTopY: null,
             currentIndex: 0,
-
+            // message: '',
+            // show: false
         }
     },
     created() {
@@ -124,6 +128,7 @@ export default {
         })*/
     },
     methods: {
+        ...mapActions(['addCart']),
         imageLoad() {
             this.$refs.scroll.refresh()
             this.getThemeTopY()
@@ -177,13 +182,30 @@ export default {
             product.price = this.goods.realPrice
             product.iid = this.iid
 
-            //2.将商品添加到购物车
+            //2.将商品添加到购物车(1.mapActions,  2.Promise)
             //this.$store.state.cartList.push(product)
             //这是mutation里边的方法
             //this.$store.commit('addCart', product)
+            this.addCart(product).then(res => {
+                // this.show = true
+                // this.message = res
+
+                // setTimeout(() => {
+                //     this.show = false
+                //     this.message = ''
+                // }, 1500)
+                console.log(res);
+                this.$toast.show(res)
+            })
             //这是action里边的方法
-            this.$store.dispatch('addCart', product)
+            /*this.$store.dispatch('addCart', product).then(res => {
+                //3.添加到购物车成功
+                console.log(res)
+            })*/
             console.log(this.$store.state.cartList);
+
+
+
         }
     },
     mounted() {
@@ -198,13 +220,13 @@ export default {
 <style scoped>
 #detail {
     position: relative;
-    z-index: 999999;
+    z-index: 9;
     background-color: #ffffff;
     height: 100vh;
 }
 .detail-nav {
     position: relative;
-    z-index: 9999;
+    z-index: 9;
     background-color: #ffffff;
 }
 .content {

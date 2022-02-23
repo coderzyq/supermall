@@ -5,21 +5,25 @@ import {
 
 export default {
     addCart(context, payload) {
-        //查找之前数组中是否有该商品
-        console.log(payload)
-        console.log(context)
-        let oldProduct = context.state.cartList.find(item => item.iid === payload.iid)
-        console.log(oldProduct)
-        //2.判断oldProduct
-        if(oldProduct) {
-            //oldProduct.count += 1
-            //console.log(oldProduct.count)
-            context.commit(ADD_COUNTER, oldProduct)
-        } else {
-            payload.count = 1
+        return new Promise((resolve, reject) => {
+            //查找之前数组中是否有该商品
             console.log(payload)
-            //context.state.cartList.push(payload)
-            context.commit(ADD_TO_CART, payload)
-        }
+            console.log(context)
+            let oldProduct = context.state.cartList.find(item => item.iid === payload.iid)
+            console.log(oldProduct)
+            //2.判断oldProduct
+            if(oldProduct) { //商品数量+1
+                //oldProduct.count += 1
+                //console.log(oldProduct.count)
+                context.commit(ADD_COUNTER, oldProduct)
+                resolve('当前的商品数量+1')
+            } else { //添加新的商品
+                payload.count = 1
+                console.log(payload)
+                //context.state.cartList.push(payload)
+                context.commit(ADD_TO_CART, payload)
+                resolve('添加了新的商品')
+            }
+        })
     }
 }
